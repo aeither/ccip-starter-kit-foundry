@@ -22,12 +22,12 @@ source .env && forge script script/CrossChainDonation.s.sol:DeployDestination \
   --verify \
   -vvvv \
   --sig "run(uint8,address)" \
-  2 ${PUBLIC_KEY}
+  2 ${TREASURY_ADDRESS}
 ```
 
 **Parameters:**
 - `2` = Arbitrum Sepolia (enum value from Helper.sol)
-- `0xYourTreasuryAddress` = Address that will receive donated tokens
+- `TREASURY_ADDRESS` = Address that will receive donated tokens (NOT your wallet address!)
 
 **Expected Output:**
 - ImpactBadgeNFT contract address
@@ -143,3 +143,29 @@ source .env && forge script script/CrossChainDonation.s.sol:CheckTreasury \
 - NFT badges are automatically minted to donors on the destination chain
 - All donated tokens are forwarded to the treasury address
 
+## Troubleshooting
+
+### Tokens Going to Wrong Address
+
+**Problem**: Tokens are being received at your donor address instead of the treasury.
+
+**Cause**: You deployed the `DonationReceiver` with your wallet address as the treasury parameter instead of the intended treasury address.
+
+**Solution**: 
+1. You need to redeploy the `DonationReceiver` contract with the correct treasury address
+2. Or, call the `setTreasury()` function on the existing contract:
+
+```bash
+cast send ${DONATION_RECEIVER_ADDRESS} \
+  "setTreasury(address)" ${TREASURY_ADDRESS} \
+  --rpc-url arbitrumSepolia \
+  --private-key ${PRIVATE_KEY}
+```
+
+### How to Check Current Treasury Address
+
+```bash
+cast call ${DONATION_RECEIVER_ADDRESS} \
+  "treasury()(address)" \
+  --rpc-url arbitrumSepolia
+```
