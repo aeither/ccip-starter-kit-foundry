@@ -94,13 +94,13 @@ source .env && forge script script/CrossChainDonation.s.sol:CheckBadge \
   -vvv \
   --sig "run(address,address,uint256)" \
   ${BADGE_NFT_ADDRESS} \
-  ${YOUR_ADDRESS} \
+  ${DONOR_ADDRESS} \
   0
 ```
 
 **Parameters:**
 - `BADGE_NFT_ADDRESS` = ImpactBadgeNFT address from Step 1
-- `YOUR_ADDRESS` = Your donor wallet address
+- `DONOR_ADDRESS` = Your donor wallet address
 - `0` = Badge token ID (0 for first badge, increment for subsequent badges)
 
 ### Step 5: Verify Treasury Balance
