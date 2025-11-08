@@ -752,3 +752,11 @@ forge test --mp ./test/fork/CCIPv1_5LockReleasePoolFork.t.sol
 ## Faucet
 
 forge script ./script/Faucet.s.sol -vvv --broadcast --rpc-url baseSepolia --sig "run(uint8)" -- 6
+
+# For CCIP-BnM token transfer on Base Sepolia
+source .env && cast send 0x88A2d74F47a237a62e7A51cdDa67270CE381555e \
+  "transfer(address,uint256)" \
+  TARGET_ADDRESS \
+  700000000000000000 \
+  --rpc-url baseSepolia \
+  --private-key=$PRIVATE_KEY
