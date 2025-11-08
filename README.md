@@ -748,3 +748,7 @@ forge test --mp ./test/fork/CCIPv1_5BurnMintPoolFork.t.sol
 ```shell
 forge test --mp ./test/fork/CCIPv1_5LockReleasePoolFork.t.sol
 ```
+
+## Faucet
+
+forge script ./script/Faucet.s.sol -vvv --broadcast --rpc-url baseSepolia --sig "run(uint8)" -- 6

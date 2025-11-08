@@ -256,6 +256,8 @@ contract Helper {
             return (ccipBnMBnbChainTestnet, clCcipLnMBnbChainTestnet);
         } else if (network == SupportedNetworks.OPTIMISM_SEPOLIA) {
             return (ccipBnMOptimismSepolia, clCcipLnMOptimismSepolia);
+        } else if (network == SupportedNetworks.BASE_SEPOLIA) {
+            return (ccipBnMBaseSepolia, clCcipLnMBaseSepolia);
         } else if (network == SupportedNetworks.WEMIX_TESTNET) {
             return (ccipBnMWemixTestnet, clCcipLnMWemixTestnet);
         } else if (network == SupportedNetworks.KROMA_SEPOLIA_TESTNET) {
