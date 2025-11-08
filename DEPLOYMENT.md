@@ -1,53 +1,53 @@
 # Cross-Chain Donation Platform Deployment Guide
 
 ## Overview
-Deploy the cross-chain donation platform to Ethereum Sepolia (source) and Arbitrum Sepolia (destination).
+Deploy the cross-chain donation platform to Base Sepolia (source) and Ethereum Sepolia (destination).
 
 ## Prerequisites
 1. Set your `PRIVATE_KEY` environment variable
-2. Set `ETHEREUM_SEPOLIA_RPC_URL` environment variable
-3. Set `ARBITRUM_SEPOLIA_RPC_URL` environment variable
+2. Set `BASE_SEPOLIA_RPC_URL` environment variable
+3. Set `ETHEREUM_SEPOLIA_RPC_URL` environment variable
 4. Have native tokens (ETH) on both chains for gas
 5. Have LINK tokens on source chain for CCIP fees (optional, can use native)
 
 ## Deployment Steps
 
-### Step 1: Deploy on Destination Chain (Arbitrum Sepolia)
-Deploy the NFT contract and DonationReceiver on Arbitrum Sepolia:
+### Step 1: Deploy on Destination Chain (Ethereum Sepolia)
+Deploy the NFT contract and DonationReceiver on Ethereum Sepolia:
 
 ```bash
 source .env && forge script script/CrossChainDonation.s.sol:DeployDestination \
-  --rpc-url arbitrumSepolia \
+  --rpc-url ethereumSepolia \
   --broadcast \
   --verify \
   -vvvv \
   --sig "run(uint8,address)" \
-  2 ${TREASURY_ADDRESS}
+  0 ${TREASURY_ADDRESS}
 ```
 
 **Parameters:**
-- `2` = Arbitrum Sepolia (enum value from Helper.sol)
+- `0` = Ethereum Sepolia (enum value from Helper.sol)
 - `TREASURY_ADDRESS` = Address that will receive donated tokens (NOT your wallet address!)
 
 **Expected Output:**
 - ImpactBadgeNFT contract address
 - DonationReceiver contract address
 
-### Step 2: Deploy on Source Chain (Ethereum Sepolia)
-Deploy the DonationSender on Ethereum Sepolia:
+### Step 2: Deploy on Source Chain (Base Sepolia)
+Deploy the DonationSender on Base Sepolia:
 
 ```bash
 forge script script/CrossChainDonation.s.sol:DeploySource \
-  --rpc-url ethereumSepolia \
+  --rpc-url baseSepolia \
   --broadcast \
   --verify \
   -vvvv \
   --sig "run(uint8)" \
-  0
+  6
 ```
 
 **Parameters:**
-- `0` = Ethereum Sepolia (enum value from Helper.sol)
+- `6` = Base Sepolia (enum value from Helper.sol)
 
 **Expected Output:**
 - DonationSender contract address
@@ -63,34 +63,34 @@ After deployment, send a donation using the complete workflow. This script autom
 
 ```bash
 source .env && forge script script/CrossChainDonation.s.sol:DonateWorkflow \
-  --rpc-url ethereumSepolia \
+  --rpc-url baseSepolia \
   --broadcast \
   -vvvv \
   --sig "run(address,uint8,uint8,address,address,uint256,string)" \
   ${DONATION_SENDER_ADDRESS} \
+  6 \
   0 \
-  2 \
   ${DONATION_RECEIVER_ADDRESS} \
-  0xFd57b4ddBf88a4e07fF4e34C487b99af2Fe82a05 \
+  0x88A2d74F47a237a62e7A51cdDa67270CE381555e \
   100000000000000000 \
   "campaign-001"
 ```
 
 **Parameters:**
 - `DONATION_SENDER_ADDRESS` = DonationSender address from Step 2
-- `0` = Ethereum Sepolia (source chain)
-- `2` = Arbitrum Sepolia (destination chain)
+- `6` = Base Sepolia (source chain)
+- `0` = Ethereum Sepolia (destination chain)
 - `DONATION_RECEIVER_ADDRESS` = DonationReceiver address from Step 1
-- `0xFd57b4ddBf88a4e07fF4e34C487b99af2Fe82a05` = CCIP-BnM token on Ethereum Sepolia
+- `0x88A2d74F47a237a62e7A51cdDa67270CE381555e` = CCIP-BnM token on Base Sepolia
 - `100000000000000000` = Donation amount (0.1 tokens with 18 decimals)
 - `"campaign-001"` = Campaign identifier
 
 ### Step 4: Check Badge Status (After 1-2 minutes)
-Verify the NFT badge was minted to the donor on Arbitrum Sepolia:
+Verify the NFT badge was minted to the donor on Ethereum Sepolia:
 
 ```bash
 source .env && forge script script/CrossChainDonation.s.sol:CheckBadge \
-  --rpc-url arbitrumSepolia \
+  --rpc-url ethereumSepolia \
   -vvv \
   --sig "run(address,address,uint256)" \
   ${BADGE_NFT_ADDRESS} \
@@ -104,38 +104,38 @@ source .env && forge script script/CrossChainDonation.s.sol:CheckBadge \
 - `0` = Badge token ID (0 for first badge, increment for subsequent badges)
 
 ### Step 5: Verify Treasury Balance
-Confirm the treasury received the donation tokens on Arbitrum Sepolia:
+Confirm the treasury received the donation tokens on Ethereum Sepolia:
 
 ```bash
 source .env && forge script script/CrossChainDonation.s.sol:CheckTreasury \
-  --rpc-url arbitrumSepolia \
+  --rpc-url ethereumSepolia \
   -vvv \
   --sig "run(address,address,uint256)" \
-  0xA8C0c11bf64AF62CDCA6f93D3769B88BdD7cb93D \
+  0xFd57b4ddBf88a4e07fF4e34C487b99af2Fe82a05 \
   ${TREASURY_ADDRESS} \
   100000000000000000
 ```
 
 **Parameters:**
-- `0xA8C0c11bf64AF62CDCA6f93D3769B88BdD7cb93D` = CCIP-BnM token on Arbitrum Sepolia
+- `0xFd57b4ddBf88a4e07fF4e34C487b99af2Fe82a05` = CCIP-BnM token on Ethereum Sepolia
 - `TREASURY_ADDRESS` = Treasury address
 - `100000000000000000` = Expected donation amount (0.1 tokens)
 
 ## Network Enum Values
 - `0` = ETHEREUM_SEPOLIA
-- `2` = ARBITRUM_SEPOLIA
+- `6` = BASE_SEPOLIA
 
 ## Contract Addresses Reference
+
+### Base Sepolia
+- Router: `0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93`
+- LINK: `0xE4aB69C077896252FAFBD49EFD26B5D171A32410`
+- CCIP-BnM: `0x88A2d74F47a237a62e7A51cdDa67270CE381555e`
 
 ### Ethereum Sepolia
 - Router: `0x0BF3dE8c5D3e8A2B34D2BEeB17ABfCeBaf363A59`
 - LINK: `0x779877A7B0D9E8603169DdbD7836e478b4624789`
 - CCIP-BnM: `0xFd57b4ddBf88a4e07fF4e34C487b99af2Fe82a05`
-
-### Arbitrum Sepolia
-- Router: `0x2a9C5afB0d0e4BAb2BCdaE109EC4b0c4Be15a165`
-- LINK: `0xb1D4538B4571d411F07960EF2838Ce337FE1E80E`
-- CCIP-BnM: `0xA8C0c11bf64AF62CDCA6f93D3769B88BdD7cb93D`
 
 ## Notes
 - Make sure to fund the DonationSender contract with native tokens for CCIP fees
@@ -158,7 +158,7 @@ source .env && forge script script/CrossChainDonation.s.sol:CheckTreasury \
 ```bash
 cast send ${DONATION_RECEIVER_ADDRESS} \
   "setTreasury(address)" ${TREASURY_ADDRESS} \
-  --rpc-url arbitrumSepolia \
+  --rpc-url ethereumSepolia \
   --private-key ${PRIVATE_KEY}
 ```
 
@@ -167,5 +167,5 @@ cast send ${DONATION_RECEIVER_ADDRESS} \
 ```bash
 cast call ${DONATION_RECEIVER_ADDRESS} \
   "treasury()(address)" \
-  --rpc-url arbitrumSepolia
+  --rpc-url ethereumSepolia
 ```
